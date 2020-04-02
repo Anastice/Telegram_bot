@@ -9,7 +9,6 @@ import time
 import schedule
 import shedule_functions
 
-knownUsers = []
 user_dict = {}
 
 bot = telebot.TeleBot(config.TOKEN)
@@ -38,9 +37,8 @@ def send_welcome(message):
         chat_id = message.chat.id
         name = message.from_user.first_name
         user = User(chat_id,name)
-        user_dict[chat_id] = user
-        if chat_id not in knownUsers:
-            knownUsers.append(chat_id)
+        if chat_id not in user_dict:
+            user_dict[chat_id] = user
             bot.send_message(chat_id, "Hello, stranger, let me scan you...")
             bot.send_message(chat_id, "Scanning complete, I know you now")
             command_help(message)
@@ -60,10 +58,10 @@ def command_help(message):
         help_text += commands[key] + "\n"
     bot.send_message(chat_id , help_text)
 
-@bot.message_handler(commands=['setLocation'])
+@bot.message_handler(commands=['setlocation'])
 def cmd_setLocation(message):
     chat_id  = message.chat.id
-    response = bot.reply_to(message, 'Please, set wished location')
+    response = bot.reply_to(message, 'Please, set the desired location')
     bot.register_next_step_handler(response, set_loc)
 
 def set_loc(message):
@@ -82,12 +80,12 @@ def set_loc(message):
             udb.commit()
 
     elif response == False :
-        bot.send_message(chat_id, " It\'s wrong location.\nPlease, try again by command \'/setLocation\' ~.")
+        bot.send_message(chat_id, " It\'s wrong location.\nPlease, try again by command \'/setlocation\' ~.")
 
 bot.enable_save_next_step_handlers(delay=2)
 bot.load_next_step_handlers()
 
-@bot.message_handler(commands=['setNotificationShedule'])
+@bot.message_handler(commands=['setnotificationshedule'])
 def shedule(message):
     chat_id = message.chat.id
     user = user_dict[chat_id]
@@ -111,17 +109,17 @@ def callback(call):
         u_cursor.execute(sql)
         udb.commit()
 
-@bot.message_handler(commands=['enableNotification'])
+@bot.message_handler(commands=['enablenotification'])
 def cmd_enableNotification(message):
     chat_id = message.chat.id
     user = user_dict[chat_id]
 
     if user.location is None :
         bot.send_message(chat_id,'Sorry, I can\'t enable notification, because I don\'t know your location ~')
-        bot.send_message(chat_id, 'You can set your location by command \'/setLocation\' ~')
+        bot.send_message(chat_id, 'You can set your location by command \'/setlocation\' ~')
     elif user.shedule is None :
         bot.send_message(chat_id,'Sorry, I can\'t enable notification, because you are don\'t set notification shedule ~')
-        bot.send_message(chat_id, 'You can set your location by command \'/setNotificationShedule \' ~')
+        bot.send_message(chat_id, 'You can set your location by command \'/setnotificationshedule \' ~')
     else :
         user.startTime = datetime.now()
         user.notification = 0
@@ -141,7 +139,7 @@ def cmd_enableNotification(message):
             val = (str(user.chatID), str(user.name), str(user.location), str(user.startTime), str(user.notification), str(user.shedule))
             u_cursor.execute(sql, val)
             udb.commit()
-            
+
             shedule_functions.response(chat_id, True, u_cursor, bot)
 
         else :
@@ -151,8 +149,7 @@ def cmd_enableNotification(message):
 
             shedule_functions.response(chat_id, True, u_cursor, bot)
 
-
-@bot.message_handler(commands=['disableNotification'])
+@bot.message_handler(commands=['disablenotification'])
 def cmd_disableNotification(message):
         chat_id = message.chat.id
         user = user_dict[chat_id]
@@ -169,15 +166,17 @@ def cmd_disableNotification(message):
 
             shedule_functions.response(chat_id, False, u_cursor, bot)
 
-@bot.message_handler(commands=['getWeather'])
+@bot.message_handler(commands=['getweather'])
 def getWeather(message):
     chat_id = message.chat.id
     user = user_dict[chat_id]
     if user.location == None :
-        bot.send_message(chat_id, 'For getting current weather you need to set wished location by command \'/setLocation\' ')
+        bot.send_message(chat_id, 'For getting current weather you need to set wished location by command \'/setlocation\' ')
     else :
-        bot.send_message(chat_id,func.get_weather(user.location, datetime.now()))
 
+        bot.send_message(chat_id,func.get_weather(user.location))
+
+#only for breaking
 @bot.message_handler(func=lambda message: message.text == "stop")
 def stop(message):
     user = Us_er(chat_id,name)

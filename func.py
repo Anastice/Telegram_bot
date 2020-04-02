@@ -1,21 +1,21 @@
 import pyowm
-
+import config
 from datetime import datetime
 
 
 commands = {
-    'start                                  ':'Get used to the bot',
-    'help                                  ':'Gives you information about the available commands',
-    'setLocation                     ':'Sets wished location',
-    'setNotificationShedule ':'Gives you options for the time period after which you will be notified',
-    'enableNotification         ':'Activates notification',
-    'disableNotification        ':'Deativates notification',
-    'getWeather                     ':'Show weater in wished location right now'
+    "start ":" Get used to the bot",
+    "help ": "Gives you information about the available commands",
+    "setlocation":" Sets the desired location",
+    "setnotificationshedule ":" Gives you options for the time period after which you will be notified",
+    "enablenotification ":" Activates notification",
+    "disablenotification ":" Deactivates notification",
+    "getweather ":" Show the weather forecast in the desired location right now"
 }
 
 def check_place(place):
     try:
-        owm = pyowm.OWM('8700baced001ec14f8eb4318dc677890')
+        owm = pyowm.OWM(config.owm)
         observation = owm.weather_at_place(place)
         response = True
     except  Exception as e:
@@ -33,7 +33,7 @@ def check_id(id, cursor):
     return new
 
 def get_weather(place):
-    owm = pyowm.OWM('8700baced001ec14f8eb4318dc677890')
+    owm = pyowm.OWM(config.owm)
     observation = owm.weather_at_place(place)
     w = observation.get_weather()
 
